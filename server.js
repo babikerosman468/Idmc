@@ -411,13 +411,18 @@ app.use((req, res) => {
 
 app.set("trust proxy", 1);
 
-app.listen(PORT, () => {
+if (require.main === module) {
+    app.listen(PORT, () => {
 
-console.log("");
-console.log("===================================");
-console.log(" IDMC Version 14");
-console.log(" Running on Port " + PORT);
-console.log("===================================");
-console.log("");
-});
+        console.log("");
+        console.log("===================================");
+        console.log(" IDMC Version 14");
+        console.log(" Running on Port " + PORT);
+        console.log("===================================");
+        console.log("");
+
+    });
+}
+
+module.exports = app;
 
