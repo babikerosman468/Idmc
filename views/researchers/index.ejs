@@ -1,0 +1,47 @@
+
+<%- include("../partials/head") %>
+
+<h1>Researchers</h1>
+
+<p>
+
+<a href="/researchers/add">
+
+Add Researcher
+
+</a>
+
+</p>
+
+<table border="1" cellpadding="8">
+
+<tr>
+
+<th>Name</th>
+
+<th>Institution</th>
+
+<th>Speciality</th>
+
+<th>Country</th>
+
+</tr>
+
+<% researchers.forEach(function(r){ %>
+
+<tr>
+
+<td><%= r[1] %></td>
+
+<td><%= r[2] %></td>
+
+<td><%= r[3] %></td>
+
+<td><%= r[4] %></td>
+
+</tr>
+
+<% }) %>
+
+</table>
+

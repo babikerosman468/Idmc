@@ -1,0 +1,21 @@
+
+<h1>IDMC Researchers</h1>
+
+<a href="/researchers/add">
+Add Researcher
+</a>
+
+<ul>
+
+<% researchers.forEach(r=>{ %>
+
+<li>
+<b><%= r[1] %></b>
+<br>
+<%= r[2] || "" %>
+</li>
+
+<% }) %>
+
+</ul>
+

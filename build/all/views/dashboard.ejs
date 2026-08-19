@@ -1,0 +1,90 @@
+
+<%- include("partials/head") %>
+
+<div class="container">
+
+<%- include("partials/sidebar") %>
+
+<div class="content">
+
+<h1>IDMC Research Intelligence Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+<h3>Projects</h3>
+<h1><%= stats.projects %></h1>
+</div>
+
+<div class="card">
+<h3>Publications</h3>
+<h1><%= stats.publications %></h1>
+</div>
+
+<div class="card">
+<h3>Researchers</h3>
+<h1><%= stats.researchers %></h1>
+</div>
+
+<div class="card">
+<h3>Diseases</h3>
+<h1><%= stats.diseases %></h1>
+</div>
+
+</div>
+
+<div style="height:350px">
+
+<canvas id="summaryChart"></canvas>
+
+</div>
+
+<br>
+
+<div class="panel">
+
+<h2>Recent Activity</h2>
+
+<ul>
+
+<li>Latest Project:
+<b><%= stats.latestProject %></b></li>
+
+<li>Latest Publication:
+<b><%= stats.latestPublication %></b></li>
+
+<li>Latest Researcher:
+<b><%= stats.latestResearcher %></b></li>
+
+<li>Database Status:
+Connected</li>
+
+<li>Portal Version:
+14</li>
+
+</ul>
+
+</div>
+
+<script>
+
+window.dashboardStats={
+
+projects:<%= stats.projects %>,
+
+publications:<%= stats.publications %>,
+
+researchers:<%= stats.researchers %>,
+
+diseases:<%= stats.diseases %>
+
+};
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="/js/dashboard.js"></script>
+
+</div>
+

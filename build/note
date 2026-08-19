@@ -1,0 +1,7 @@
+build/
+    feature-researchers.sh
+    feature-research-groups.sh
+    feature-datasets.sh
+    feature-onehealth.sh
+    feature-bioinformatics.sh
+    feature-ai.sh

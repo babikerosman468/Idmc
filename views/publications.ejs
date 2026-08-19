@@ -1,0 +1,58 @@
+<%- include("partials/head") %>
+
+<%- include("partials/header") %>
+
+<%- include("partials/navbar") %>
+
+
+<main>
+
+<h2>Research Publications</h2>
+
+<p>
+<a href="/publications/add">
+Add New Publication
+</a>
+</p>
+
+
+<% if (publications.length === 0) { %>
+
+<p>No publications available.</p>
+
+
+<% } else { %>
+
+<ul>
+
+<% publications.forEach(publication => { %>
+
+<li>
+
+<h3>
+<%= publication.title %>
+</h3>
+
+<p>
+Authors:
+<%= publication.authors %>
+</p>
+
+<p>
+Year:
+<%= publication.year %>
+</p>
+
+</li>
+
+<% }) %>
+
+</ul>
+
+<% } %>
+
+
+</main>
+
+
+<%- include("partials/footer") %>

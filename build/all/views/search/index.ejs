@@ -1,0 +1,69 @@
+
+<%- include("../partials/head") %>
+
+<h1>Global Search</h1>
+
+<form method="GET" action="/search">
+
+<input
+type="text"
+name="q"
+value="<%= keyword %>"
+placeholder="Search">
+
+<button type="submit">
+
+Search
+
+</button>
+
+</form>
+
+<h2>Projects</h2>
+
+<ul>
+
+<% projects.forEach(function(p){ %>
+
+<li>
+
+<%= p[1] %>
+
+</li>
+
+<% }) %>
+
+</ul>
+
+<h2>Publications</h2>
+
+<ul>
+
+<% publications.forEach(function(p){ %>
+
+<li>
+
+<%= p[1] %>
+
+</li>
+
+<% }) %>
+
+</ul>
+
+<h2>Researchers</h2>
+
+<ul>
+
+<% researchers.forEach(function(r){ %>
+
+<li>
+
+<%= r[1] %>
+
+</li>
+
+<% }) %>
+
+</ul>
+

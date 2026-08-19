@@ -1,0 +1,430 @@
+require("dotenv").config();
+
+const express = require("express");
+const helmet = require("helmet");
+const cors = require("cors");
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
+const path = require("path");
+
+
+const bcrypt = require("bcryptjs");
+
+const {
+    getDatabase,
+    saveDatabase
+} = require("./database/db");
+
+
+const projectRoutes = require("./routes/projects");
+
+const dashboardRoutes = require("./routes/dashboard");
+
+const app = express();
+
+let database;
+
+(async () => {
+
+    database = await getDatabase();
+
+    console.log("IDMC database ready");
+
+})();
+
+app.disable("x-powered-by");
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+const PORT = process.env.PORT || 3000;
+
+const SESSION_SECRET =
+    process.env.SESSION_SECRET || "change_this_in_production";
+
+
+/* ======================================================
+   Middleware
+====================================================== */
+
+app.use(helmet());
+
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
+
+app.use(morgan("dev"));
+
+app.use(express.json());
+
+app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
+
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+
+cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 24 * 60 * 60 * 1000
+}
+}));
+
+app.use(express.static(path.join(__dirname, "public")));
+
+
+/* ======================================================
+   Health Check
+====================================================== */
+
+app.get("/health", (req, res) => {
+    res.json({
+        status: "OK",
+        application: "IDMC",
+        version: "6.0",
+        environment: process.env.NODE_ENV || "development"
+    });
+});
+
+
+/* ======================================================
+   Home Page
+====================================================== */
+
+app.get("/", (req,res)=>{
+    res.redirect("/dashboard");
+});
+
+
+/* ======================================================
+   Home Page
+====================================================== */
+
+app.get("/", (req, res) => {
+
+    res.render("index");
+
+});
+
+
+/* ======================================================
+   Routes
+====================================================== */
+
+app.get("/about", (req, res) => {
+
+    res.render("about");
+
+});
+
+
+app.get("/research", (req, res) => {
+
+    res.render("research");
+
+});
+
+
+app.get("/diseases", (req, res) => {
+
+    res.render("diseases");
+
+});
+
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+
+app.post("/login", (req, res) => {
+
+    const { username, password } = req.body;
+
+    if (username === "admin" && password === "admin123") {
+
+        req.session.user = {
+            username: "admin",
+            role: "admin"
+        };
+
+        return res.redirect("/admin");
+    }
+
+    res.send("Invalid username or password");
+});
+
+app.get("/admin", (req, res) => {
+
+    if (!req.session.user) {
+        return res.redirect("/login");
+    }
+
+    res.render("admin");
+});
+
+
+app.get("/database-test", (req, res) => {
+
+    const result = database.exec(
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    );
+
+    res.json(result);
+
+});
+
+
+
+
+/* ======================================================
+   Research Projects
+====================================================== */
+
+
+app.get("/projects", (req, res) => {
+
+
+    const result = database.exec(
+        "SELECT * FROM projects ORDER BY year DESC"
+    );
+
+
+    let projects = [];
+
+
+    if (result.length > 0) {
+
+        const rows = result[0].values;
+
+        const columns = result[0].columns;
+
+
+        projects = rows.map(row => {
+
+            let obj = {};
+
+            columns.forEach((col, i) => {
+
+                obj[col] = row[i];
+
+            });
+
+            return obj;
+
+        });
+
+    }
+
+
+    res.render(
+        "projects",
+        {
+            projects
+        }
+    );
+
+
+});
+
+
+
+app.get("/projects/add", (req, res) => {
+
+    res.render("add-project");
+
+});
+
+
+
+app.post("/projects/save", (req, res) => {
+
+
+    const {
+        title,
+        description,
+        year
+    } = req.body;
+
+
+    database.run(
+`
+INSERT INTO projects
+(title, description, year)
+
+VALUES (?, ?, ?)
+
+`,
+[
+title,
+description,
+year
+]
+);
+
+
+    saveDatabase();
+
+
+    res.redirect("/projects");
+
+
+});
+
+
+
+
+
+/* ======================================================
+   Publications Module
+====================================================== */
+
+
+app.get("/publications", (req, res) => {
+
+
+    const result = database.exec(
+        "SELECT * FROM publications ORDER BY year DESC"
+    );
+
+
+    let publications = [];
+
+
+    if (result.length > 0) {
+
+
+        const rows = result[0].values;
+
+        const columns = result[0].columns;
+
+
+        publications = rows.map(row => {
+
+
+            let obj = {};
+
+
+            columns.forEach((col, i) => {
+
+                obj[col] = row[i];
+
+            });
+
+
+            return obj;
+
+
+        });
+
+
+    }
+
+
+    res.render(
+        "publications",
+        {
+            publications
+        }
+    );
+
+
+});
+
+
+
+
+app.get("/publications/add", (req, res) => {
+
+
+    res.render("add-publication");
+
+
+});
+
+
+
+
+app.post("/publications/save", (req, res) => {
+
+
+    const {
+        title,
+        authors,
+        year
+
+    } = req.body;
+
+
+
+    database.run(
+
+`
+INSERT INTO publications
+
+(title, authors, year)
+
+VALUES (?, ?, ?)
+
+`,
+
+[
+title,
+authors,
+year
+]
+
+);
+
+
+
+    saveDatabase();
+
+
+    res.redirect("/publications");
+
+
+});
+
+app.use("/projects", projectRoutes);
+
+app.use("/dashboard", dashboardRoutes);
+
+/* ======================================================
+   404
+====================================================== */
+
+app.use((req, res) => {
+
+    res.status(404).render("404");
+
+});
+
+
+/* ======================================================
+   Start Server
+====================================================== */
+
+app.set("trust proxy", 1);
+
+app.listen(PORT, () => {
+
+    console.log("");
+
+    console.log("===================================");
+
+    console.log(" IDMC Version 9");
+
+    console.log(" Running on Port " + PORT);
+
+    console.log("===================================");
+
+    console.log("");
+
+});
+
+

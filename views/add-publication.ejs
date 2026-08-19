@@ -1,0 +1,61 @@
+<%- include("partials/head") %>
+
+<%- include("partials/header") %>
+
+<%- include("partials/navbar") %>
+
+
+<main>
+
+<h2>Add Publication</h2>
+
+
+<form method="POST" action="/publications/save">
+
+
+<p>
+Title
+</p>
+
+<input
+type="text"
+name="title"
+required>
+
+
+<p>
+Authors
+</p>
+
+<input
+type="text"
+name="authors"
+required>
+
+
+<p>
+Year
+</p>
+
+<input
+type="number"
+name="year"
+value="2026">
+
+
+<p>
+
+<button type="submit">
+Save Publication
+</button>
+
+</p>
+
+
+</form>
+
+
+</main>
+
+
+<%- include("partials/footer") %>
