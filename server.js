@@ -18,6 +18,7 @@ const {
 
 
 const projectRoutes = require("./routes/projects");
+const auth = require("./middleware/auth");
 
 const dashboardRoutes = require("./routes/dashboard");
 
@@ -83,14 +84,6 @@ app.use(express.static(path.join(__dirname, "public")));
    Health Check
 ====================================================== */
 
-app.get("/health", (req, res) => {
-    res.json({
-        status: "OK",
-        application: "IDMC",
-        version: "6.0",
-        environment: process.env.NODE_ENV || "development"
-    });
-});
 
 
 /* ======================================================
@@ -112,7 +105,7 @@ app.get("/", (req, res) => {
 
 });
 
-
+app.use("/dashboard", dashboardRoutes);
 /* ======================================================
    Routes
 ====================================================== */
@@ -141,14 +134,14 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
 
     const { username, password } = req.body;
 
-    if (username === "admin" && password === "admin123") {
+    if (username === process.env.ADMIN_USERNAME && password && process.env.ADMIN_PASSWORD_HASH && await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH)) {
 
         req.session.user = {
-            username: "admin",
+            username: process.env.ADMIN_USERNAME,
             role: "admin"
         };
 
@@ -233,7 +226,7 @@ app.get("/projects", (req, res) => {
 
 
 
-app.get("/projects/add", (req, res) => {
+app.get("/projects/add", auth, (req, res) => {
 
     res.render("add-project");
 
@@ -241,7 +234,7 @@ app.get("/projects/add", (req, res) => {
 
 
 
-app.post("/projects/save", (req, res) => {
+app.post("/projects/save", auth, (req, res) => {
 
 
     const {
@@ -338,7 +331,7 @@ app.get("/publications", (req, res) => {
 
 
 
-app.get("/publications/add", (req, res) => {
+app.get("/publications/add", auth, (req, res) => {
 
 
     res.render("add-publication");
@@ -349,7 +342,7 @@ app.get("/publications/add", (req, res) => {
 
 
 
-app.post("/publications/save", (req, res) => {
+app.post("/publications/save", auth, (req, res) => {
 
 
     const {
@@ -391,6 +384,8 @@ year
 });
 
 app.use("/projects", projectRoutes);
+
+app.use("/search", require("./routes/search"));
 
 app.use("/dashboard", dashboardRoutes);
 

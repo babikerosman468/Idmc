@@ -2,6 +2,7 @@
 const express=require("express");
 
 const router=express.Router();
+const auth=require("../middleware/auth");
 
 const upload=
 
@@ -11,11 +12,11 @@ const controller=
 
 require("../controllers/UploadController");
 
-router.get("/",
+router.get("/",auth,
 
 controller.form);
 
-router.post("/",
+router.post("/",auth,
 
 upload.single("document"),
 

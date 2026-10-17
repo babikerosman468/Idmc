@@ -1,95 +1,140 @@
 <%- include("partials/head") %>
 
 <div class="content">
-<div class="topbar">
 
-<a href="/login">Login</a>
+  <!-- Visitor Navigation -->
+  <div class="topbar">
+    <nav>
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/projects">Projects</a>
+      <a href="/publications">Publications</a>
+      <a href="/research">Research</a>
+      <a href="/diseases">Diseases</a>
+      <a href="/search">Search</a>
+      <a href="/about">About</a>
+      <a href="/login">Admin Login</a>
+    </nav>
+  </div>
 
-&nbsp; | &nbsp;
+  <!-- Dashboard Heading -->
+  <h1>IDMC Research Intelligence Dashboard</h1>
 
-<a href="/admin">Admin</a>
+  <p>
+    Welcome to the Infectious Disease Modelling Center research portal.
+    Explore research projects, publications, researchers, and disease
+    information through the public dashboard.
+  </p>
 
-</div>
+  <!-- Summary Statistics -->
+  <div class="cards">
 
-<h1>IDMC Research Intelligence Dashboard</h1>
+    <div class="card">
+      <h3>Projects</h3>
+      <h1><%= stats.projects %></h1>
+      <a href="/projects">Browse Projects</a>
+    </div>
 
-<div class="cards">
+    <div class="card">
+      <h3>Publications</h3>
+      <h1><%= stats.publications %></h1>
+      <a href="/publications">Browse Publications</a>
+    </div>
 
-<div class="card">
-<h3>Projects</h3>
-<h1><%= stats.projects %></h1>
-</div>
+    <div class="card">
+      <h3>Researchers</h3>
+      <h1><%= stats.researchers %></h1>
+    </div>
 
-<div class="card">
-<h3>Publications</h3>
-<h1><%= stats.publications %></h1>
-</div>
+    <div class="card">
+      <h3>Diseases</h3>
+      <h1><%= stats.diseases %></h1>
+      <a href="/diseases">Explore Diseases</a>
+    </div>
 
-<div class="card">
-<h3>Researchers</h3>
-<h1><%= stats.researchers %></h1>
-</div>
+  </div>
 
-<div class="card">
-<h3>Diseases</h3>
-<h1><%= stats.diseases %></h1>
-</div>
+  <!-- Research Summary Chart -->
+  <div class="panel">
 
-</div>
+    <h2>Research Overview</h2>
 
-<div style="height:350px">
+    <div style="height:350px; position:relative;">
+      <canvas id="summaryChart"></canvas>
+    </div>
 
-<canvas id="summaryChart"></canvas>
+  </div>
 
-</div>
+  <!-- Recent Activity -->
+  <div class="panel">
 
-<br>
+    <h2>Recent Activity</h2>
 
-<div class="panel">
+    <ul>
+      <li>
+        Latest Project:
+        <strong><%= stats.latestProject %></strong>
+      </li>
 
-<h2>Recent Activity</h2>
+      <li>
+        Latest Publication:
+        <strong><%= stats.latestPublication %></strong>
+      </li>
 
-<ul>
+      <li>
+        Latest Researcher:
+        <strong><%= stats.latestResearcher %></strong>
+      </li>
 
-<li>Latest Project:
-<b><%= stats.latestProject %></b></li>
+      <li>
+        Database Status:
+        <strong>Connected</strong>
+      </li>
 
-<li>Latest Publication:
-<b><%= stats.latestPublication %></b></li>
+      <li>
+        Portal Version:
+        <strong>14</strong>
+      </li>
+    </ul>
 
-<li>Latest Researcher:
-<b><%= stats.latestResearcher %></b></li>
+  </div>
 
-<li>Database Status:
-Connected</li>
+  <!-- Visitor Information -->
+  <div class="panel">
 
-<li>Portal Version:
-14</li>
+    <h2>Explore IDMC</h2>
 
-</ul>
+    <p>
+      Browse the research portal without an administrator account.
+      Administrative access is reserved for authorized users.
+    </p>
 
-</div>
+    <p>
+      <a href="/projects">Projects</a> |
+      <a href="/publications">Publications</a> |
+      <a href="/research">Research</a> |
+      <a href="/diseases">Disease Library</a> |
+      <a href="/search">Search</a>
+    </p>
 
-<script>
+    <p>
+      <a href="/login">Administrator Login</a>
+    </p>
 
-window.dashboardStats = {
+  </div>
 
-projects: <%= stats.projects %>,
+  <!-- Dashboard Data -->
+  <script>
+    window.dashboardStats = {
+      projects: <%= stats.projects %>,
+      publications: <%= stats.publications %>,
+      researchers: <%= stats.researchers %>,
+      diseases: <%= stats.diseases %>
+    };
+  </script>
 
-publications: <%= stats.publications %>,
-
-researchers: <%= stats.researchers %>,
-
-diseases: <%= stats.diseases %>
-
-};
-
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script src="/js/dashboard.js"></script>
-
-</div>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/dashboard.js"></script>
 
 </div>

@@ -17,3 +17,4 @@ backup/
 build/
 .vercel
 .env*
+username.txt
