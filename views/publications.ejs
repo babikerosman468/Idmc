@@ -4,55 +4,23 @@
 
 <%- include("partials/navbar") %>
 
-
-<main>
-
-<h2>Research Publications</h2>
+<main><h2>Research Publications</h2><% if (currentUser) { %>
 
 <p>
-<a href="/publications/add">
-Add New Publication
-</a>
+<a href="/publications/add">Add New Publication</a>
 </p>
+<% } %><% if (publications.length === 0) { %>
 
+<p>No publications available.</p><% } else { %>
 
-<% if (publications.length === 0) { %>
+<ul><% publications.forEach(publication => { %>
 
-<p>No publications available.</p>
+<li><h3><%= publication.title %></h3><p>
+Authors: <%= publication.authors %>
+</p><p>
+Year: <%= publication.year %>
+</p></li><% }) %>
 
+</ul><% } %>
 
-<% } else { %>
-
-<ul>
-
-<% publications.forEach(publication => { %>
-
-<li>
-
-<h3>
-<%= publication.title %>
-</h3>
-
-<p>
-Authors:
-<%= publication.authors %>
-</p>
-
-<p>
-Year:
-<%= publication.year %>
-</p>
-
-</li>
-
-<% }) %>
-
-</ul>
-
-<% } %>
-
-
-</main>
-
-
-<%- include("partials/footer") %>
+</main><%- include("partials/footer") %>

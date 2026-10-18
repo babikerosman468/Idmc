@@ -185,7 +185,7 @@ app.get("/projects", async (req, res) => {
     try {
         const db = await getDatabase();
         const r = await db.query("SELECT * FROM projects ORDER BY year DESC");
-        res.render("projects", { projects: r.rows });
+res.render("projects", { projects: r.rows, currentUser: req.session.user || null });
     } catch (e) {
         console.error("Projects:", e.message);
         res.status(500).send("Unable to load projects");
@@ -217,7 +217,7 @@ app.get("/publications", async (req, res) => {
     try {
         const db = await getDatabase();
         const r = await db.query("SELECT * FROM publications ORDER BY year DESC");
-        res.render("publications", { publications: r.rows });
+res.render("publications", { publications: r.rows, currentUser: req.session.user || null });
     } catch (e) {
         console.error("Publications:", e.message);
         res.status(500).send("Unable to load publications");
