@@ -145,8 +145,13 @@ app.post("/login", async (req, res) => {
             username: process.env.ADMIN_USERNAME,
             role: "admin"
         };
-
-        return res.redirect("/admin");
+return req.session.save(err => {
+    if (err) {
+        console.error("Session save failed:", err.message);
+        return res.status(500).send("Login session could not be saved");
+    }
+    res.redirect("/admin");
+});
     }
 
     res.send("Invalid username or password");
