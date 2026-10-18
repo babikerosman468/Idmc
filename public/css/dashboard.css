@@ -185,3 +185,28 @@ canvas{
     max-width:1200px;
     margin:0 auto;
 }
+
+/* Mobile responsive dashboard */
+.topbar{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:10px}
+.topbar nav{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.topbar nav a{display:inline-block;padding:10px 14px;background:#0b4f6c;color:#fff;text-decoration:none;border-radius:6px;line-height:1.4}
+.topbar nav a:hover{background:#176b8b}
+.cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{min-width:0;overflow-wrap:anywhere}
+.panel{min-width:0;box-sizing:border-box}
+
+@media(max-width:900px){
+.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+.content{padding:20px}
+}
+
+@media(max-width:520px){
+.content{padding:12px}
+.topbar nav{gap:6px}
+.topbar nav a{padding:9px 10px;font-size:14px}
+.cards{grid-template-columns:1fr;gap:12px}
+.card,.panel{padding:16px}
+.panel{overflow-x:auto}
+.panel canvas{max-width:100%}
+h1{font-size:25px;overflow-wrap:anywhere}
+}
