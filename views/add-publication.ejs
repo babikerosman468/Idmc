@@ -10,7 +10,7 @@
 <h2>Add Publication</h2>
 
 
-<form method="POST" action="/publications/save">
+<form method="POST" action="/publications/save" onsubmit="this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').textContent='Saving...';">
 
 
 <p>
