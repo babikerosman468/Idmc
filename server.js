@@ -152,6 +152,20 @@ app.post("/login", async (req, res) => {
     res.send("Invalid username or password");
 });
 
+
+
+app.post("/logout", (req, res) => {
+req.session.destroy((err) => {
+if (err) {
+console.error("Logout error:", err.message);
+return res.status(500).send("Unable to log out");
+}
+
+    res.clearCookie("connect.sid");
+    res.redirect("/login");
+});
+
+});
 app.get("/admin", (req, res) => {
 
     if (!req.session.user) {
@@ -211,6 +225,56 @@ app.post("/projects/save", auth, async (req, res) => {
     }
 });
 
+
+app.get("/projects/edit/:id", auth, async (req, res) => {
+    try {
+        const db = await getDatabase();
+        const r = await db.query(
+            "SELECT * FROM projects WHERE id = $1",
+            [req.params.id]
+        );
+
+        if (!r.rows.length) return res.status(404).send("Project not found");
+
+        res.render("edit-project", { project: r.rows[0] });
+    } catch (e) {
+        console.error("Edit project:", e.message);
+        res.status(500).send("Unable to load project");
+    }
+});
+
+app.post("/projects/update/:id", auth, async (req, res) => {
+    try {
+        const db = await getDatabase();
+        const { title, description, year } = req.body;
+
+        await db.query(
+            "UPDATE projects SET title = $1, description = $2, year = $3 WHERE id = $4",
+            [title, description, year ? Number(year) : null, req.params.id]
+        );
+
+        res.redirect("/projects");
+    } catch (e) {
+        console.error("Update project:", e.message);
+        res.status(500).send("Unable to update project");
+    }
+});
+
+app.post("/projects/delete/:id", auth, async (req, res) => {
+    try {
+        const db = await getDatabase();
+
+        await db.query(
+            "DELETE FROM projects WHERE id = $1",
+            [req.params.id]
+        );
+
+        res.redirect("/projects");
+    } catch (e) {
+        console.error("Delete project:", e.message);
+        res.status(500).send("Unable to delete project");
+    }
+});
 /* Publications — PostgreSQL */
 
 app.get("/publications", async (req, res) => {
