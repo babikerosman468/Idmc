@@ -23,6 +23,7 @@ const auth = require("./middleware/auth");
 const dashboardRoutes = require("./routes/dashboard");
 
 const app = express();
+app.set("trust proxy", 1);
 
 let database;
 
@@ -161,233 +162,92 @@ app.get("/admin", (req, res) => {
 });
 
 
-app.get("/database-test", (req, res) => {
+app.get("/database-test", async (req, res) => {
+    try {
+        const db = await getDatabase();
+        
+        const result = await db.query("SELECT tablename AS name FROM pg_tables WHERE schemaname = $1 ORDER BY tablename", ["public"]);
 
-    const result = database.exec(
-        "SELECT name FROM sqlite_master WHERE type='table'"
-    );
+        res.json(result.rows);
 
-    res.json(result);
+    } catch (err) {
+        console.error("Database test failed:", err.message);
 
-});
-
-
-
-
-/* ======================================================
-   Research Projects
-====================================================== */
-
-
-app.get("/projects", (req, res) => {
-
-
-    const result = database.exec(
-        "SELECT * FROM projects ORDER BY year DESC"
-    );
-
-
-    let projects = [];
-
-
-    if (result.length > 0) {
-
-        const rows = result[0].values;
-
-        const columns = result[0].columns;
-
-
-        projects = rows.map(row => {
-
-            let obj = {};
-
-            columns.forEach((col, i) => {
-
-                obj[col] = row[i];
-
-            });
-
-            return obj;
-
-        });
+        res.status(500).json({ error: "Database test failed" });
 
     }
-
-
-    res.render(
-        "projects",
-        {
-            projects
-        }
-    );
-
-
 });
 
 
+/* Research Projects — PostgreSQL */
+
+app.get("/projects", async (req, res) => {
+    try {
+        const db = await getDatabase();
+        const r = await db.query("SELECT * FROM projects ORDER BY year DESC");
+        res.render("projects", { projects: r.rows });
+    } catch (e) {
+        console.error("Projects:", e.message);
+        res.status(500).send("Unable to load projects");
+    }
+});
 
 app.get("/projects/add", auth, (req, res) => {
-
     res.render("add-project");
-
 });
 
-
-
-app.post("/projects/save", auth, (req, res) => {
-
-
-    const {
-        title,
-        description,
-        year
-    } = req.body;
-
-
-    database.run(
-`
-INSERT INTO projects
-(title, description, year)
-
-VALUES (?, ?, ?)
-
-`,
-[
-title,
-description,
-year
-]
-);
-
-
-    saveDatabase();
-
-
-    res.redirect("/projects");
-
-
-});
-
-
-
-
-
-/* ======================================================
-   Publications Module
-====================================================== */
-
-
-app.get("/publications", (req, res) => {
-
-
-    const result = database.exec(
-        "SELECT * FROM publications ORDER BY year DESC"
-    );
-
-
-    let publications = [];
-
-
-    if (result.length > 0) {
-
-
-        const rows = result[0].values;
-
-        const columns = result[0].columns;
-
-
-        publications = rows.map(row => {
-
-
-            let obj = {};
-
-
-            columns.forEach((col, i) => {
-
-                obj[col] = row[i];
-
-            });
-
-
-            return obj;
-
-
-        });
-
-
+app.post("/projects/save", auth, async (req, res) => {
+    try {
+        const db = await getDatabase();
+        const { title, description, year } = req.body;
+        await db.query(
+            "INSERT INTO projects (title, description, year) VALUES ($1, $2, $3)",
+            [title, description, year ? Number(year) : null]
+        );
+        res.redirect("/projects");
+    } catch (e) {
+        console.error("Save project:", e.message);
+        res.status(500).send("Unable to save project");
     }
-
-
-    res.render(
-        "publications",
-        {
-            publications
-        }
-    );
-
-
 });
 
+/* Publications — PostgreSQL */
 
-
+app.get("/publications", async (req, res) => {
+    try {
+        const db = await getDatabase();
+        const r = await db.query("SELECT * FROM publications ORDER BY year DESC");
+        res.render("publications", { publications: r.rows });
+    } catch (e) {
+        console.error("Publications:", e.message);
+        res.status(500).send("Unable to load publications");
+    }
+});
 
 app.get("/publications/add", auth, (req, res) => {
-
-
     res.render("add-publication");
-
-
 });
 
-
-
-
-app.post("/publications/save", auth, (req, res) => {
-
-
-    const {
-        title,
-        authors,
-        year
-
-    } = req.body;
-
-
-
-    database.run(
-
-`
-INSERT INTO publications
-
-(title, authors, year)
-
-VALUES (?, ?, ?)
-
-`,
-
-[
-title,
-authors,
-year
-]
-
-);
-
-
-
-    saveDatabase();
-
-
-    res.redirect("/publications");
-
-
+app.post("/publications/save", auth, async (req, res) => {
+    try {
+        const db = await getDatabase();
+        const { title, authors, year } = req.body;
+        await db.query(
+            "INSERT INTO publications (title, authors, year) VALUES ($1, $2, $3)",
+            [title, authors, year ? Number(year) : null]
+        );
+        res.redirect("/publications");
+    } catch (e) {
+        console.error("Save publication:", e.message);
+        res.status(500).send("Unable to save publication");
+    }
 });
 
 app.use("/projects", projectRoutes);
 
 app.use("/search", require("./routes/search"));
 
-app.use("/dashboard", dashboardRoutes);
+
 
 /* ======================================================
    404
@@ -404,7 +264,6 @@ app.use((req, res) => {
    Start Server
 ====================================================== */
 
-app.set("trust proxy", 1);
 
 if (require.main === module) {
     app.listen(PORT, () => {
