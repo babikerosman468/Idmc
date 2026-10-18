@@ -1,73 +1,15 @@
-
-exports.statistics=function(db){
-
-function count(table){
-
-try{
-
-const r=db.exec(
-"SELECT COUNT(*) FROM "+table
-);
-
-if(r.length){
-
-return r[0].values[0][0];
-
-}
-
-}catch(e){}
-
-return 0;
-
-}
-
-function latest(table,column){
-
-try{
-
-const r=db.exec(
-"SELECT "+column+" FROM "+table+
-" ORDER BY id DESC LIMIT 1"
-);
-
-if(r.length && r[0].values.length){
-
-return r[0].values[0][0];
-
-}
-
-}catch(e){}
-
-return "None";
-
-}
-
-return{
-
-projects:count("projects"),
-
-publications:count("publications"),
-
-researchers:count("researchers"),
-
-users:count("users"),
-
-diseases:count("diseases"),
-
-datasets:count("datasets"),
-
-courses:count("courses"),
-
-latestProject:
-latest("projects","title"),
-
-latestPublication:
-latest("publications","title"),
-
-latestResearcher:
-latest("researchers","fullname")
-
+exports.statistics = async function(db) {
+    const tables = ["projects", "publications", "researchers", "users", "diseases", "datasets", "courses"];
+    const counts = await Promise.all(tables.map(async table => {
+        const result = await db.query(`SELECT COUNT(*)::int AS total FROM ${table}`);
+        return [table, result.rows[0].total];
+    }));
+    async function latest(table, column) {
+        const result = await db.query(`SELECT ${column} FROM ${table} ORDER BY id DESC LIMIT 1`);
+        return result.rows.length ? (result.rows[0][column] || "None") : "None";
+    }
+    const [latestProject, latestPublication, latestResearcher] = await Promise.all([
+        latest("projects", "title"), latest("publications", "title"), latest("researchers", "fullname")
+    ]);
+    return { ...Object.fromEntries(counts.map(([key, value]) => [key, value])), latestProject, latestPublication, latestResearcher };
 };
-
-}
-
